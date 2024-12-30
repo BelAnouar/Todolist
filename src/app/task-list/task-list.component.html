@@ -1,0 +1,72 @@
+<div class="container mx-auto p-4">
+  <h2 class="text-2xl font-bold mb-4">My Tasks</h2>
+  <div class="mb-4">
+    <input
+      [(ngModel)]="searchTerm"
+      placeholder="Search tasks"
+      class="w-full p-2 border rounded"
+    />
+  </div>
+  <ng-container *ngIf="tasks$ | async as tasks">
+    <ul class="space-y-4">
+      <li *ngFor="let task of tasks | filterTasks:searchTerm" class="bg-white p-4 rounded shadow">
+        <div class="flex justify-between items-center">
+          <h3 class="text-lg font-semibold">{{ task.title }}</h3>
+          <span [ngClass]="{
+            'bg-red-500': task.priority === 'high',
+            'bg-yellow-500': task.priority === 'medium',
+            'bg-blue-500': task.priority === 'low'
+          }" class="px-2 py-1 rounded text-white text-sm">
+            {{ task.priority }}
+          </span>
+        </div>
+        <p class="text-gray-600">{{ task.description }}</p>
+        <div class="mt-2 flex justify-between items-center">
+          <span class="text-sm text-gray-500">Due: {{ task.dueDate | date:'dd/MM/yyyy HH:mm' }}</span>
+          <span class="text-sm text-gray-500">Category: {{ getCategoryName(task.categoryId) }}</span>
+        </div>
+        <div class="mt-2 flex justify-between items-center">
+          <div>
+            <button
+              (click)="updateTaskStatus(task, 'not-started')"
+              [ngClass]="{'bg-gray-500': task.status === 'not-started'}"
+              class="px-2 py-1 rounded text-white text-sm mr-2"
+            >
+              Not Started
+            </button>
+            <button
+              (click)="updateTaskStatus(task, 'in-progress')"
+              [ngClass]="{'bg-yellow-500': task.status === 'in-progress'}"
+              class="px-2 py-1 rounded text-white text-sm mr-2"
+            >
+              In Progress
+            </button>
+            <button
+              (click)="updateTaskStatus(task, 'completed')"
+              [ngClass]="{'bg-green-500': task.status === 'completed'}"
+              class="px-2 py-1 rounded text-white text-sm"
+            >
+              Completed
+            </button>
+          </div>
+          <div>
+            <button [routerLink]="['/tasks', 'edit', task.id]" class="text-blue-500 hover:text-blue-700 mr-2">
+              Edit
+            </button>
+            <button (click)="deleteTask(task.id)" class="text-red-500 hover:text-red-700">
+              Delete
+            </button>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </ng-container>
+  <div *ngIf="(tasks$ | async)?.length === 0" class="text-center text-gray-500 mt-4">
+    No tasks found.
+  </div>
+  <div class="mt-4">
+    <button [routerLink]="['/tasks', 'new']" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+      Add New Task
+    </button>
+  </div>
+</div>
